@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hot metal desulfurization · digital twin</title>
+<meta name="description" content="Interactive digital twin of the hot metal desulfurization by powder injection model of Barrón, Hilerio and Medina (2015), with a 3D CFD simulation in OpenFOAM.">
+<link rel="stylesheet" href="estilo.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
+</script>
+<script type="module" src="app.js"></script>
+<script type="module" src="visor3d.js"></script>
+<script>
+  // la figura vive en su propia pagina; el marco toma su altura para no tener scroll interno
+  addEventListener("DOMContentLoaded", () => {
+    const b = document.getElementById("fig1-completa");
+    b && b.addEventListener("click", () => document.querySelector(".figura-olla iframe").requestFullscreen?.());
+  });
+  addEventListener("message", (e) => {
+    const f = document.querySelector(".figura-olla iframe");
+    if (f && e.source === f.contentWindow && e.data && e.data.figura === "olla") f.style.height = e.data.alto + "px";
+  });
+</script>
+</head>
+<body>
+
+<header class="barra">
+  <a class="marca" href="#inicio">Desulfurization <span>· digital twin</span></a>
+  <nav>
+    <a href="#proceso">Process</a>
+    <a href="#modelo">Model</a>
+    <a href="#gemelo">Twin</a>
+    <a href="#figuras">Figures</a>
+    <a href="#cfd">CFD 3D</a>
+    <a href="#metodo">Method</a>
+    <a href="#creditos">Credits</a>
+    <a href="index.html" lang="es" class="idioma">ES</a>
+  </nav>
+</header>
+
+<main>
+
+<section id="inicio" class="portada">
+  <div class="envoltura">
+    <p class="antetitulo">Interactive digital twin</p>
+    <h1>Modeling and Simulation of Hot Metal Desulfurization by Powder&nbsp;Injection</h1>
+    <p class="subtitulo">Hot metal desulfurization by powder injection: the kinetic model of Barrón, Hilerio and Medina (2015), turned into a twin you can operate, together with a 3D fluid simulation of the ladle.</p>
+    <dl class="cifras">
+      <div><dt>Ladle</dt><dd>150 t <small>of hot metal</small></dd></div>
+      <div><dt>Sulfur with lime</dt><dd>0.1 → <span id="cifra-sfinal">0.0018</span> % <small>in 40 min</small></dd></div>
+      <div><dt>CFD 3D</dt><dd>515&#8239;520 <small>cells</small></dd></div>
+      <div><dt>Runs</dt><dd>12 <small>OpenFOAM cases</small></dd></div>
+    </dl>
+  </div>
+  <figure class="video envoltura-ancha">
+    <video src="medios/c12.mp4" poster="medios/c12_poster.jpg" autoplay muted loop playsinline controls preload="metadata"></video>
+    <figcaption>Vertical cut of the ladle through the lance and both nozzles. Color is the hot metal speed and the lines follow its path; both come from the OpenFOAM CFD simulation, not from an approximate animation. Rendered in Blender.</figcaption>
+  </figure>
+</section>
+
+<section id="proceso" class="seccion">
+  <div class="envoltura">
+    <p class="antetitulo">1 · The process</p>
+    <h2>Removing sulfur from hot metal before making steel</h2>
+    <div class="dos-columnas">
+      <div class="texto">
+        <p>Sulfur makes steel brittle: it reduces ductility and impact toughness. To produce low-sulfur steels, the hot metal coming from the blast furnace is treated in the ladle before going to the oxygen converter.</p>
+        <p>In powder injection, a refractory lance immersed in the bath blows an inert gas (argon or nitrogen) carrying the powdered reagent. The particles rise with the bubbles, react with the dissolved sulfur, and the sulfide formed floats up to the slag, where it is trapped.</p>
+        <p>Three reagents are used, alone or mixed. Lime is the cheapest; calcium carbide and magnesium desulfurize faster but cost more. The paper studies each one alone (mono-injection) and in mixtures (co-injection).</p>
+      </div>
+      <aside class="reacciones">
+        <span class="etq">Desulfurization reactions</span>
+        <ul>
+          <li><span class="rx">CaO + [S] → CaS + (O)</span><small>lime</small></li>
+          <li><span class="rx">CaC₂ + [S] → CaS + 2C</span><small>calcium carbide</small></li>
+          <li><span class="rx">Mg + [S] → MgS</span><small>magnesium</small></li>
+        </ul>
+        <p>[S] is the sulfur dissolved in the hot metal. The solid product rises to the slag.</p>
+      </aside>
+    </div>
+    <figure class="figura-olla">
+      <iframe src="figura/olla-en.html" title="Cutaway desulfurization station, interactive" loading="lazy" scrolling="no" allowfullscreen></iframe>
+      <button type="button" class="boton-completa" id="fig1-completa">Full screen</button>
+    </figure>
+  </div>
+</section>
+
+<section id="modelo" class="seccion oscura">
+  <div class="envoltura">
+    <p class="antetitulo">2 · The model</p>
+    <h2>From the continuity equation to a single exponential</h2>
+    <p class="intro">The paper starts from the general sulfur balance in the ladle and, with two physical assumptions, reduces it to an ordinary differential equation with a closed-form solution.</p>
+    <div class="resultado-modelo"><span class="etq">Result · eq. 6</span><span class="ec"><var>S</var>(<var>t</var>) = <var>S</var><sub>e</sub> + (<var>S</var><sub>0</sub> − <var>S</var><sub>e</sub>) e<sup>−<var>k t</var></sup></span><p>Sulfur decays exponentially from the initial value <var>S</var><sub>0</sub> toward the equilibrium value <var>S</var><sub>e</sub>; the whole problem comes down to knowing the rate constant <var>k</var>.</p></div>
+    <details class="plegable">
+      <summary>Show the step-by-step derivation (eqs. 1 to 6)</summary>
+      <ol class="pasos">
+        <li><span class="etq">Sulfur balance · eq. 1</span><span class="ec">∂<var>S</var>/∂<var>t</var> + <b>v</b>·∇<var>S</var> = <var>D</var><sub>S</sub> ∇²<var>S</var> + <var>r</var><sub>S</sub></span><p>Continuity equation: sulfur accumulates, travels with the flow (convection), diffuses and disappears by reaction at rate <var>r</var><sub>S</sub>. The paper writes it in cylindrical coordinates; here it is in compact form.</p></li>
+        <li><span class="etq">Axial transport · eq. 2</span><span class="ec">∂<var>S</var>/∂<var>t</var> + <var>v</var><sub>z</sub> ∂<var>S</var>/∂<var>z</var> = <var>D</var><sub>S</sub> ∂²<var>S</var>/∂<var>z</var>² + <var>r</var><sub>S</sub></span><p>Bubbles move mostly upward, so only the vertical direction <var>z</var> is kept.</p></li>
+        <li><span class="etq">Well-stirred tank · eq. 3</span><span class="ec">d<var>S</var>/d<var>t</var> = <var>r</var><sub>S</sub></span><p>Diffusion is small compared with convection and gas stirring leaves small concentration gradients: sulfur only changes with time.</p></li>
+        <li><span class="etq">First-order kinetics · eqs. 4 and 5</span><span class="ec"><var>r</var><sub>S</sub> = −<var>k</var> (<var>S</var> − <var>S</var><sub>e</sub>) &nbsp;&nbsp; <var>k</var> = <var>k</var><sub>0</sub> e<sup>−<var>E</var><sub>a</sub>/<var>RT</var></sup></span><p>The desulfurization rate is proportional to the distance from equilibrium <var>S</var><sub>e</sub>. The constant <var>k</var> depends on temperature through Arrhenius; the model is isothermal, so <var>k</var> is fixed during injection.</p></li>
+        <li><span class="etq">Solution · eq. 6</span><span class="ec"><var>S</var>(<var>t</var>) = <var>S</var><sub>e</sub> + (<var>S</var><sub>0</sub> − <var>S</var><sub>e</sub>) e<sup>−<var>k t</var></sup></span><p>Sulfur decays exponentially from <var>S</var><sub>0</sub> toward <var>S</var><sub>e</sub>. Everything comes down to knowing <var>k</var>.</p></li>
+      </ol>
+    </details>
+
+    <h3 class="subtitulo-seccion">Where does <var>k</var> come from?</h3>
+    <p class="intro">For lime, <var>k</var> is computed from the physics of injection, in three chained steps.</p>
+    <ol class="pasos">
+      <li><span class="etq">Bubble rise · eq. 9</span><span class="ec"><var>v</var><sub>b</sub> = <span class="frac"><span><var>g</var> (<var>ρ</var><sub>M</sub> − <var>ρ</var><sub>g</sub>) <var>d</var><sub>b</sub><sup>2</sup></span><span>18 <var>μ</var><sub>M</sub></span></span></span><p>Stokes' law: the bubble rises faster the larger the density difference and its diameter, and slower the more viscous the metal.</p></li>
+      <li><span class="etq">Residence time · eq. 8</span><span class="ec"><var>t</var><sub>R</sub> = <span class="frac"><span><var>h</var><sub>i</sub></span><span><var>v</var><sub>b</sub></span></span></span><p>The particle rides with the bubble from the lance tip to the surface. A deeper lance gives it more contact time with the metal.</p></li>
+      <li><span class="etq">Lime rate constant · eq. 7, after Oeters</span><span class="ec"><var>k</var><sub>CaO</sub> = <span class="frac"><span>6 <var>β</var> <var>t</var><sub>R</sub> <var>q</var><sub>CaO</sub> <var>ρ</var><sub>M</sub></span><span><var>d</var><sub>p</sub> <var>w</var><sub>M</sub> <var>ρ</var><sub>CaO</sub></span></span></span><p>It grows with the mass transfer coefficient <var>β</var>, the residence time and the lime feed rate. The term 6/<var>d</var><sub>p</sub> is the area per unit volume of a sphere: finer particles offer more surface and react faster. A ladle with more metal dilutes the effect.</p></li>
+    </ol>
+
+    <h3 class="subtitulo-seccion">Mixtures and half-life</h3>
+    <ol class="pasos">
+      <li><span class="etq">Co-injection · eq. 15</span><span class="ec"><var>k</var><sub>m</sub> = Σ <var>x</var><sub>i</sub> <var>k</var><sub>i</sub></span><p>The rate constant of a mixture is the average of those of each powder, weighted by its mole fraction <var>x</var><sub>i</sub>. The compositions in table 3 are in weight percent and are converted to mole fractions with each powder's molar mass.</p></li>
+      <li><span class="etq">Half-life · eq. 16</span><span class="ec"><var>t</var><sub>h</sub> = <span class="frac"><span>ln 2</span><span><var>k</var></span></span></span><p>Time for the sulfur still to be removed, <var>S</var> − <var>S</var><sub>e</sub>, to halve. It does not depend on the initial sulfur, so it is a fair way to compare reagents.</p></li>
+    </ol>
+
+    <div class="dos-columnas datos-modelo">
+      <div>
+        <h3>Parameters of the validation case</h3>
+        <table class="tabla simbolos">
+          <thead><tr><th>Symbol</th><th>Meaning</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td><var>β</var></td><td>mass transfer coefficient</td><td>6.3×10⁻⁵ m/s</td></tr>
+            <tr><td><var>q</var><sub>CaO</sub></td><td>lime feed rate</td><td>1.25 kg/s</td></tr>
+            <tr><td><var>ρ</var><sub>M</sub></td><td>hot metal density</td><td>7100 kg/m³</td></tr>
+            <tr><td><var>μ</var><sub>M</sub></td><td>hot metal viscosity</td><td>0.0067 kg/(m·s)</td></tr>
+            <tr><td><var>w</var><sub>M</sub></td><td>hot metal mass</td><td>150&#8239;000 kg</td></tr>
+            <tr><td><var>d</var><sub>p</sub></td><td>lime particle diameter</td><td>1.0×10⁻⁵ m</td></tr>
+            <tr><td><var>ρ</var><sub>CaO</sub></td><td>lime density</td><td>3345 kg/m³</td></tr>
+            <tr><td><var>h</var><sub>i</sub></td><td>lance immersion depth</td><td>2.0 m</td></tr>
+            <tr><td><var>d</var><sub>b</sub></td><td>bubble diameter</td><td>1.1725×10⁻³ m</td></tr>
+            <tr><td><var>ρ</var><sub>g</sub></td><td>gas density</td><td>1.165 kg/m³</td></tr>
+            <tr><td><var>S</var><sub>e</sub></td><td>equilibrium sulfur</td><td>0 wt %</td></tr>
+          </tbody>
+        </table>
+        <p class="nota">Table 1 of the paper.</p>
+      </div>
+      <div>
+        <h3>Validation</h3>
+        <p class="parrafo">The validation case is lime desulfurization of 150 t of hot metal reported by Oeters (1989), with 0.1 % initial sulfur and 2400 s of injection. Table 1 gives <var>v</var><sub>b</sub> = 0.7938 m/s, <var>t</var><sub>R</sub> = 2.52 s and <var>k</var> = 0.001684 1/s, and the computed curve matches the reference data (figure 2 of the paper). Reproduced here, all three values agree to the fourth digit.</p>
+        <h3>Co-injection mixtures</h3>
+        <table class="tabla">
+          <thead><tr><th>Mix</th><th>CaO</th><th>CaC₂</th><th>Mg</th><th><var>k</var><sub>m</sub> (1/s)</th></tr></thead>
+          <tbody>
+            <tr><td>M1</td><td>0 %</td><td>50 %</td><td>50 %</td><td>0.002869</td></tr>
+            <tr><td>M2</td><td>25 %</td><td>37.5 %</td><td>37.5 %</td><td>0.002664</td></tr>
+            <tr><td>M3</td><td>50 %</td><td>25 %</td><td>25 %</td><td>0.002412</td></tr>
+            <tr><td>M4</td><td>75 %</td><td>12.5 %</td><td>12.5 %</td><td>0.002095</td></tr>
+            <tr><td>M5</td><td>100 %</td><td>0 %</td><td>0 %</td><td>0.001684</td></tr>
+          </tbody>
+        </table>
+        <p class="nota">Table 3 of the paper, composition in weight percent. Rate constant of each powder (table 2): lime 0.001684 1/s (this model), CaC₂ 0.004 1/s (Zhao, 1992) and Mg 0.00244 1/s (Irons and Guthrie, 1981).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="gemelo" class="seccion">
+  <div class="envoltura">
+    <p class="antetitulo">3 · Interactive twin</p>
+    <h2>Change the operation and watch desulfurization respond</h2>
+    <p class="intro">The paper's equations run live in your browser. The orange curve is the condition you choose; the dashed one, the same mix with the paper's values.</p>
+
+    <div class="gemelo">
+      <form class="controles" id="controles" autocomplete="off">
+        <fieldset>
+          <legend>Powder mix</legend>
+          <div class="presets" role="group" aria-label="Mezclas del artículo">
+            <button type="button" data-cao="0">M1</button>
+            <button type="button" data-cao="25">M2</button>
+            <button type="button" data-cao="50">M3</button>
+            <button type="button" data-cao="75">M4</button>
+            <button type="button" data-cao="100">M5</button>
+          </div>
+          <div class="deslizador" data-id="cao"></div>
+          <div class="deslizador" data-id="reparto"></div>
+          <div class="barra-mezcla" id="barra-mezcla" aria-hidden="true"><span class="cao"></span><span class="cac2"></span><span class="mg"></span></div>
+        </fieldset>
+        <fieldset>
+          <legend>Operation</legend>
+          <div class="deslizador" data-id="q"></div>
+          <div class="deslizador" data-id="h"></div>
+          <div class="deslizador" data-id="tiny"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Material</legend>
+          <div class="deslizador" data-id="dp"></div>
+          <div class="deslizador" data-id="db"></div>
+          <div class="deslizador" data-id="w"></div>
+          <div class="deslizador" data-id="s0"></div>
+        </fieldset>
+        <button type="button" class="restablecer" id="restablecer">Back to the paper's values</button>
+      </form>
+
+      <div class="panel">
+        <div class="lecturas">
+          <div><span>Mix rate constant</span><b id="l-km">—</b><small>1/s</small></div>
+          <div><span>Half-life</span><b id="l-th">—</b><small>s</small></div>
+          <div><span>Final sulfur</span><b id="l-sf">—</b><small>wt %</small></div>
+          <div><span>Time to 0.005 % S</span><b id="l-t005">—</b><small id="l-t005-u">min</small></div>
+        </div>
+        <div class="grafica-cabeza">
+          <h3>Sulfur concentration versus time</h3>
+          <label class="interruptor"><input type="checkbox" id="escala-log"> log scale</label>
+        </div>
+        <div class="grafica" id="g-gemelo"></div>
+        <h3 class="cadena-titulo">The model chain, live</h3>
+    <ol class="cadena" id="cadena">
+      <li><span>Bubble</span><b id="c-vb">—</b><small>m/s · <var>v</var><sub>b</sub></small></li>
+      <li><span>Residence</span><b id="c-tr">—</b><small>s · <var>t</var><sub>R</sub></small></li>
+      <li><span>Lime kinetics</span><b id="c-kcao">—</b><small>1/s · <var>k</var><sub>CaO</sub></small></li>
+      <li><span>Mix</span><b id="c-km">—</b><small>1/s · <var>k</var><sub>m</sub></small></li>
+    </ol>
+      </div>
+    </div>
+    <p class="nota">The CaC₂ (0.004 1/s, Zhao 1992) and Mg (0.00244 1/s, Irons and Guthrie 1981) constants come from table 2 of the paper and do not depend on the operating controls; the lime constant does, through eq. 7.</p>
+  </div>
+</section>
+
+<section id="figuras" class="seccion oscura">
+  <div class="envoltura">
+    <p class="antetitulo">4 · The paper's figures</p>
+    <h2>The three results figures, recomputed</h2>
+    <p class="intro">Generated with the same model that drives the twin and the parameters of tables 1 to 3; the captions summarize the paper's reading. Hover over each chart to read the values.</p>
+    <div class="figuras">
+      <figure>
+        <div class="grafica" id="g-fig5"></div>
+        <figcaption><b>Figure 5.</b> Mono-injection with 0.1 % initial sulfur. Calcium carbide is the fastest, followed by magnesium; lime is the slowest, especially in the first half of injection. Cost limits the use of the first two.</figcaption>
+      </figure>
+      <figure>
+        <div class="grafica" id="g-fig6"></div>
+        <figcaption><b>Figure 6.</b> Co-injection of the five mixtures in table 3. The lime-free mix desulfurizes fastest; each increase in lime lowers <var>k</var><sub>m</sub> and slows the sulfur decay.</figcaption>
+      </figure>
+      <figure>
+        <div class="grafica" id="g-fig7"></div>
+        <figcaption><b>Figure 7.</b> Half-life versus lime content: it rises from about 242 s without lime to 412 s with pure lime. More lime slows desulfurization, even though lime is the cheapest reagent.</figcaption>
+      </figure>
+    </div>
+
+    <div class="conclusiones">
+      <h3>The paper's conclusions</h3>
+      <ol>
+        <li>Carrier gas bubbles stir the bath; the CFD simulation supports the well-stirred tank assumption.</li>
+        <li>The lime mono-injection model, validated against literature data, represents the process quantitatively.</li>
+        <li>A mixture rate constant based on mole fraction and each powder's rate constant is proposed.</li>
+        <li>Lime content governs co-injection speed, especially in the first half: more lime, longer half-life.</li>
+        <li>To speed up desulfurization, lime in the mix should be reduced; since it is the cheapest powder, the decision requires an economic, technical and productivity analysis at plant level.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="cfd" class="seccion">
+  <div class="envoltura">
+    <p class="antetitulo">5 · 3D CFD simulation</p>
+    <h2>Inside the bath: explore the 3D simulation</h2>
+    <div class="dos-columnas">
+      <div class="texto">
+        <h3>The paper's CFD</h3>
+        <p>To check the well-stirred tank assumption, the paper simulates the ladle in 2D with Fluent 6.1: transient, isothermal flow, the VOF model for the two phases and standard k-ε turbulence. Gas leaves two nozzles at 45° at the model's bubble velocity, with <var>k</var> = 0.01 <var>v</var><sub>b</sub>² at the inlet and <var>ε</var> computed from the nozzle diameter. At 5 s the bubbles rise next to the lance and many spread toward the walls in the upper part (figure 3), and the streamlines show stirring down to the bottom of the ladle (figure 4).</p>
+        <h3>This twin's CFD</h3>
+        <p>Here the same ladle was simulated in full 3D with <b>OpenFOAM</b>. With bubbles just over 1 mm in a bath more than 2.5 m deep, the gas is treated as a continuous phase coexisting with the metal (Euler–Euler model) instead of tracking every interface as in VOF; turbulence is mixture k-ε. The lance depth, the two 20 mm nozzles at 45°, the exit velocity and the paper's inlet <var>k</var> and <var>ε</var> are kept.</p>
+        <p>Each case simulates 60 s of flow and the fields are averaged between 20 s and 60 s, once circulation is established. Argon rises next to the lance and, at the surface, spreads toward the walls; the metal sinks along the sides and forms a large recirculation loop on each side of the lance reaching the bottom: the same picture as figures 3 and 4.</p>
+      </div>
+      <dl class="ficha">
+        <div><dt>Solver</dt><dd>twoPhaseEulerFoam · OpenFOAM v2606</dd></div>
+        <div><dt>Geometry</dt><dd>ladle Ø 3.2 m, 2.63 m bath</dd></div>
+        <div><dt>Lance</dt><dd>0.2 m, 2 nozzles of 20 mm at 45°</dd></div>
+        <div><dt>Fine mesh</dt><dd>515&#8239;520 cells</dd></div>
+        <div><dt>Argon</dt><dd>1.17 mm bubbles · 0.5 L/s</dd></div>
+        <div><dt>Hot metal</dt><dd>7100 kg/m³ · 0.0067 Pa·s · 1350 °C</dd></div>
+        <div><dt>Turbulence</dt><dd>mixture k-ε</dd></div>
+        <div><dt>Time</dt><dd>60 s per case, averaged 20–60 s</dd></div>
+        <div><dt>Compute</dt><dd>12 runs, local, 8 cores</dd></div>
+      </dl>
+    </div>
+
+    <figure class="visor explorador">
+      <div class="visor-lienzo" id="visor3d" tabindex="0" aria-label="3D flow explorer of the ladle; drag to rotate, scroll to zoom">
+        <p class="visor-cargando">Loading the 3D flow…</p>
+        <p class="visor-tinte" id="visor-tinte" aria-live="polite"></p>
+        <p class="visor-lectura" id="visor-lectura" aria-live="polite"></p>
+        <div class="visor-tour" id="visor-tour" hidden>
+          <div class="tour-cabeza"><b id="tour-titulo"></b><span id="tour-n"></span><button type="button" id="tour-cerrar" aria-label="Close tour">×</button></div>
+          <p id="tour-texto"></p>
+          <div class="tour-pie"><button type="button" id="tour-ant">Previous</button><button type="button" id="tour-sig">Next</button></div>
+        </div>
+      </div>
+      <div class="explorador-controles">
+        <div class="explorador-caso">
+          <label for="ex-caso">Simulation case</label>
+          <select id="ex-caso"></select>
+          <div class="explorador-botones">
+            <button type="button" id="ex-recorrido">Guided tour</button>
+            <button type="button" id="ex-tinte">Mixing test</button>
+            <button type="button" id="ex-completa">Full screen</button>
+          </div>
+        </div>
+        <fieldset class="capas">
+          <legend>Layers</legend>
+          <label><input type="checkbox" id="ex-corte" checked> Vertical cut</label>
+          <label><input type="checkbox" id="ex-rebanada"> Horizontal slice</label>
+          <label><input type="checkbox" id="ex-pluma" checked> Argon plume <small id="ex-pluma-nota"></small></label>
+          <label><input type="checkbox" id="ex-particulas" checked> Particles</label>
+          <label><input type="checkbox" id="ex-lineas"> Streamlines</label>
+        </fieldset>
+        <div class="explorador-deslizadores">
+          <div class="deslizador"><label for="ex-angulo"><span>Cut rotation</span><output id="ex-angulo-o">0°</output></label>
+            <input type="range" id="ex-angulo" min="0" max="180" step="1" value="0"></div>
+          <div class="deslizador"><label for="ex-altura"><span>Slice height</span><output id="ex-altura-o">1.20 m</output></label>
+            <input type="range" id="ex-altura" min="0.1" max="2.55" step="0.05" value="1.2"></div>
+          <div class="explorador-botones">
+            <button type="button" id="ex-soltar">Release particles at the nozzles</button>
+            <button type="button" id="visor-giro" aria-pressed="true">Pause rotation</button>
+          </div>
+          <div class="escala-color"><span>0</span><i></i><span>0.12 m/s</span></div>
+        </div>
+      </div>
+      <figcaption>Average flow between 20 s and 60 s of each case. Color is the hot metal speed; the bluish plume is the argon; particles follow the computed 3D velocity, 10 times faster. Hover over a cut to read the speed and gas at that point, and click to release dye there. The mixing test carries the dye with the average flow only, without turbulent dispersion: it shows where the metal travels and where it stagnates (the slow region near the bottom by the wall), not the actual mixing time, which turbulence shortens considerably.</figcaption>
+    </figure>
+
+    <div class="dos-columnas resultados">
+      <div>
+        <div class="grafica-cabeza">
+          <h3>Sweep: gas flow × lance depth</h3>
+          <div class="segmentos" role="group" aria-label="Measure">
+            <button type="button" data-medida="v_media_m_s" aria-pressed="true">mean</button>
+            <button type="button" data-medida="v_p95_m_s" aria-pressed="false">95th percentile</button>
+          </div>
+        </div>
+        <div class="grafica" id="g-barrido"></div>
+        <p class="nota">Hot metal speed in the cut through the nozzles, medium mesh. A deeper lance gives the plume more height and speeds up circulation; doubling the gas does too, to a lesser extent.</p>
+      </div>
+      <div>
+        <h3>Mesh study</h3>
+        <table class="tabla" id="t-malla">
+          <thead><tr><th>Mesh</th><th>Cells</th><th>mean v</th><th>v p95</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="nota">Base case with the paper's gas flow and lance. The medium mesh is enough for the overall circulation and was used for the sweep; the fine mesh resolves the plume better and was used for the base case with nozzles in the video.</p>
+        <details class="supuestos">
+          <summary>Simulation assumptions</summary>
+          <p>From the paper: 150 t mass, lance depth, two 20 mm nozzles at 45°, bubble diameter, hot metal density and viscosity, inlet k and ε. Assumed here as typical of a 150 t ladle: 3.2 m diameter, 0.2 m square lance, 0.4 m freeboard, 1.7 N/m surface tension and an isothermal process at 1350 °C.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="metodo" class="seccion oscura">
+  <div class="envoltura">
+    <p class="antetitulo">6 · How it was made</p>
+    <h2>From the paper to the twin</h2>
+    <ol class="metodo">
+      <li><b>Reproduce the model.</b> Equations 6 to 9, 15 and 16 were programmed in Python with the values of tables 1 to 3 and checked against the published results: bubble velocity, residence time, lime rate constant, final sulfur and the constants of the five mixtures.</li>
+      <li><b>Bring it to the browser.</b> The same model runs in JavaScript inside this page; it was compared against the Python version at 28 points, with no differences.</li>
+      <li><b>Simulate the flow.</b> Twelve 3D runs in OpenFOAM: a mesh study (coarse, medium and fine), a sweep of 3 gas flows × 3 lance depths and the base case on the fine mesh with the nozzles modeled. They ran on a personal computer, with automatic pause and resume.</li>
+      <li><b>Extract the fields.</b> ParaView and Python take from each run the vertical cut through the lance, the average flow and the streamlines.</li>
+      <li><b>Visualize.</b> Blender (Cycles) builds the ladle cut from those fields; three.js shows the flow in 3D on this page.</li>
+    </ol>
+    <div class="conclusiones">
+      <h3>Scope</h3>
+      <ul>
+        <li>As in the paper, the process is isothermal; eq. 5 is not used because it needs <var>k</var><sub>0</sub> and <var>E</var><sub>a</sub>.</li>
+        <li>The slag is not modeled.</li>
+        <li>The CFD resolves the gas and metal flow, not the chemistry: the sulfur curves come from the published model.</li>
+        <li>The ladle diameter, the lance cross-section and some properties are not given in the paper; typical values for a 150 t ladle were used (see the assumptions in section 5).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="creditos" class="seccion creditos">
+  <div class="envoltura">
+    <p class="antetitulo">Credits</p>
+    <p><b>Based on:</b> Barrón, M. A., Hilerio, I. and Medina, D. Y. (2015). Modeling and Simulation of Hot Metal Desulfurization by Powder Injection. <i>Open Journal of Applied Sciences</i>, 5, 295–303. <a href="https://doi.org/10.4236/ojapps.2015.56030">doi:10.4236/ojapps.2015.56030</a></p>
+    <p><b>Authors of the original model:</b> Miguel A. Barrón, Isaías Hilerio and Dulce Y. Medina, Department of Materials, Universidad Autónoma Metropolitana, Azcapotzalco campus, Mexico City.</p>
+    <p><b>License:</b> the paper is published under Creative Commons Attribution 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>), which allows reusing its model and figures with credit.</p>
+    <p><b>Data cited by the paper:</b> validation against Oeters (1989), <i>Metallurgy of Steelmaking</i>; calcium carbide constant from Zhao (1992); magnesium constant from Irons and Guthrie (1981).</p>
+    <p><b>This reinterpretation:</b> interactive digital twin by Gersain Barrón using open-source software (OpenFOAM, ParaView, Python, Blender, three.js). The cuts, bubbles and streamlines come from our own OpenFOAM CFD simulations with the paper's parameters; the sulfur curves come from the published model.</p>
+  </div>
+</section>
+
+</main>
+<div class="tooltip" id="tooltip" role="status" hidden></div>
+</body>
+</html>

@@ -208,3 +208,43 @@ button[aria-pressed=true], .presets button.activo { background: var(--acento); b
 
 .figura-olla { margin: 2.4rem 0 0; }
 .figura-olla iframe { display: block; width: 100%; height: 820px; border: 0; background: transparent; color-scheme: dark; }
+
+/* Explorador 3D */
+.visor-lectura { position: absolute; left: 12px; bottom: 10px; margin: 0; font-size: .8rem; color: var(--texto); background: rgba(13,10,8,.78);
+  border-radius: 6px; padding: .25rem .55rem; font-variant-numeric: tabular-nums; pointer-events: none; }
+.visor-lectura:empty { display: none; }
+.explorador-controles { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 1rem 2rem; margin-top: .9rem;
+  background: var(--superficie); border: 1px solid var(--linea-suave); border-radius: 12px; padding: .9rem 1.1rem; }
+.capas { display: flex; flex-wrap: wrap; gap: .45rem 1.1rem; margin: 0; align-content: start; }
+.capas legend { width: 100%; }
+.capas label { display: flex; gap: .4rem; align-items: center; font-size: .9rem; cursor: pointer; }
+.capas input { accent-color: var(--acento); }
+.explorador-deslizadores .deslizador { margin-bottom: .6rem; }
+.explorador-deslizadores input:disabled { opacity: .35; }
+.explorador-botones { display: flex; flex-wrap: wrap; gap: .5rem; margin: .2rem 0 .7rem; }
+.explorador-botones button { font-size: .88rem; }
+.explorador figcaption { margin-top: .7rem; }
+@media (max-width: 760px) { .explorador-controles { grid-template-columns: minmax(0, 1fr); } }
+
+.explorador-controles { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr); }
+.explorador-caso label { display: block; font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--acento); font-weight: 600; margin-bottom: .5rem; }
+.explorador-caso select { width: 100%; font: inherit; font-size: .9rem; color: var(--texto); background: var(--fondo-2); border: 1px solid var(--linea); border-radius: 7px; padding: .4rem .5rem; margin-bottom: .7rem; }
+.capas small { color: var(--tenue); font-size: .75rem; }
+.visor-tinte { position: absolute; left: 12px; top: 10px; margin: 0; font-size: .82rem; color: #b9ffd9; background: rgba(13,10,8,.78); border-radius: 6px; padding: .25rem .55rem; pointer-events: none; font-variant-numeric: tabular-nums; }
+.visor-tinte:empty { display: none; }
+.visor-tour { position: absolute; right: 12px; top: 12px; width: min(340px, calc(100% - 24px)); background: rgba(13,10,8,.9); border: 1px solid var(--linea); border-radius: 10px; padding: .7rem .85rem; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+.tour-cabeza { display: flex; align-items: baseline; gap: .6rem; }
+.tour-cabeza b { font-family: var(--serif); font-size: 1.05rem; flex: 1; }
+.tour-cabeza span { color: var(--tenue); font-size: .8rem; }
+.tour-cabeza button { border: 0; font-size: 1.1rem; padding: 0 .3rem; line-height: 1; }
+.visor-tour p { margin: .4rem 0 .7rem; font-size: .88rem; color: #d8cec3; line-height: 1.5; }
+.tour-pie { display: flex; justify-content: space-between; gap: .5rem; }
+.tour-pie button { font-size: .85rem; }
+.tour-pie button:disabled { opacity: .35; }
+.explorador:fullscreen { background: var(--fondo-2); padding: 16px; overflow: auto; }
+.explorador:fullscreen .visor-lienzo { aspect-ratio: auto; height: calc(100vh - 260px); }
+.boton-completa { margin-top: .5rem; font-size: .85rem; }
+@media (max-width: 960px) { .explorador-controles { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .explorador-caso { grid-column: 1 / -1; } }
+@media (max-width: 640px) { .explorador-controles { grid-template-columns: minmax(0, 1fr); } .visor-tour { left: 8px; right: 8px; top: auto; bottom: 8px; width: auto; } }
+
+.barra nav a.idioma { color: var(--acento-2); border: 1px solid var(--linea); border-radius: 6px; padding: 0 .4rem; }

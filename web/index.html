@@ -13,6 +13,10 @@
 <script type="module" src="visor3d.js"></script>
 <script>
   // la figura vive en su propia pagina; el marco toma su altura para no tener scroll interno
+  addEventListener("DOMContentLoaded", () => {
+    const b = document.getElementById("fig1-completa");
+    b && b.addEventListener("click", () => document.querySelector(".figura-olla iframe").requestFullscreen?.());
+  });
   addEventListener("message", (e) => {
     const f = document.querySelector(".figura-olla iframe");
     if (f && e.source === f.contentWindow && e.data && e.data.figura === "olla") f.style.height = e.data.alto + "px";
@@ -31,6 +35,7 @@
     <a href="#cfd">CFD 3D</a>
     <a href="#metodo">Método</a>
     <a href="#creditos">Créditos</a>
+    <a href="index-en.html" lang="en" class="idioma">EN</a>
   </nav>
 </header>
 
@@ -75,7 +80,8 @@
       </aside>
     </div>
     <figure class="figura-olla">
-      <iframe src="figura/olla.html" title="Estación de desulfuración seccionada, interactiva" loading="lazy" scrolling="no"></iframe>
+      <iframe src="figura/olla.html" title="Estación de desulfuración seccionada, interactiva" loading="lazy" scrolling="no" allowfullscreen></iframe>
+      <button type="button" class="boton-completa" id="fig1-completa">Pantalla completa</button>
     </figure>
   </div>
 </section>
@@ -250,7 +256,7 @@
 <section id="cfd" class="seccion">
   <div class="envoltura">
     <p class="antetitulo">5 · Simulación CFD 3D</p>
-    <h2>El baño por dentro: OpenFOAM con los parámetros del artículo</h2>
+    <h2>El baño por dentro: explora la simulación 3D</h2>
     <div class="dos-columnas">
       <div class="texto">
         <h3>La CFD del artículo</h3>
@@ -272,16 +278,48 @@
       </dl>
     </div>
 
-    <figure class="visor">
-      <div class="visor-lienzo" id="visor3d" tabindex="0" aria-label="Líneas de corriente 3D; arrastra para girar">
-        <p class="visor-cargando">Cargando líneas de corriente…</p>
+    <figure class="visor explorador">
+      <div class="visor-lienzo" id="visor3d" tabindex="0" aria-label="Explorador 3D del flujo en la olla; arrastra para girar, rueda para acercar">
+        <p class="visor-cargando">Cargando el flujo 3D…</p>
+        <p class="visor-tinte" id="visor-tinte" aria-live="polite"></p>
+        <p class="visor-lectura" id="visor-lectura" aria-live="polite"></p>
+        <div class="visor-tour" id="visor-tour" hidden>
+          <div class="tour-cabeza"><b id="tour-titulo"></b><span id="tour-n"></span><button type="button" id="tour-cerrar" aria-label="Cerrar recorrido">×</button></div>
+          <p id="tour-texto"></p>
+          <div class="tour-pie"><button type="button" id="tour-ant">Anterior</button><button type="button" id="tour-sig">Siguiente</button></div>
+        </div>
       </div>
-      <div class="visor-pie">
-        <div class="escala-color"><span>0</span><i></i><span>0.3 m/s</span></div>
-        <button type="button" id="visor-giro" aria-pressed="true">Pausar giro</button>
-        <button type="button" id="visor-flujo" aria-pressed="true">Flujo animado</button>
-        <figcaption>183 líneas de corriente del flujo promedio del caso base (malla fina); los pulsos avanzan al ritmo real del arrabio, 10 veces más rápido. Arrastra para girar, rueda para acercar.</figcaption>
+      <div class="explorador-controles">
+        <div class="explorador-caso">
+          <label for="ex-caso">Caso de la simulación</label>
+          <select id="ex-caso"></select>
+          <div class="explorador-botones">
+            <button type="button" id="ex-recorrido">Recorrido guiado</button>
+            <button type="button" id="ex-tinte">Prueba de mezclado</button>
+            <button type="button" id="ex-completa">Pantalla completa</button>
+          </div>
+        </div>
+        <fieldset class="capas">
+          <legend>Capas</legend>
+          <label><input type="checkbox" id="ex-corte" checked> Corte vertical</label>
+          <label><input type="checkbox" id="ex-rebanada"> Rebanada horizontal</label>
+          <label><input type="checkbox" id="ex-pluma" checked> Pluma de argón <small id="ex-pluma-nota"></small></label>
+          <label><input type="checkbox" id="ex-particulas" checked> Partículas</label>
+          <label><input type="checkbox" id="ex-lineas"> Líneas de corriente</label>
+        </fieldset>
+        <div class="explorador-deslizadores">
+          <div class="deslizador"><label for="ex-angulo"><span>Giro del corte</span><output id="ex-angulo-o">0°</output></label>
+            <input type="range" id="ex-angulo" min="0" max="180" step="1" value="0"></div>
+          <div class="deslizador"><label for="ex-altura"><span>Altura de la rebanada</span><output id="ex-altura-o">1.20 m</output></label>
+            <input type="range" id="ex-altura" min="0.1" max="2.55" step="0.05" value="1.2"></div>
+          <div class="explorador-botones">
+            <button type="button" id="ex-soltar">Soltar partículas en las toberas</button>
+            <button type="button" id="visor-giro" aria-pressed="true">Pausar giro</button>
+          </div>
+          <div class="escala-color"><span>0</span><i></i><span>0.12 m/s</span></div>
+        </div>
       </div>
+      <figcaption>Flujo promedio entre 20 s y 60 s de cada caso. El color es la rapidez del arrabio; la pluma azulada es el argón; las partículas siguen la velocidad 3D calculada, 10 veces más rápido. Pasa el cursor sobre un corte para leer la rapidez y el gas en ese punto, y haz clic para soltar ahí un tinte. La prueba de mezclado transporta el tinte solo con el flujo promedio, sin la dispersión turbulenta: muestra por dónde viaja el metal y dónde se estanca (la zona lenta del fondo junto a la pared), no el tiempo real de mezclado, que la turbulencia acorta mucho.</figcaption>
     </figure>
 
     <div class="dos-columnas resultados">

@@ -15,6 +15,8 @@ const M = await import(pathToFileURL(join(HERE, "../web/modelo.js")).href);
 
 const OUT = join(HERE, "..", "web", "figura");
 const theme = process.argv.includes("--light") ? "light" : "dark";
+const EN = process.argv.includes("--en");
+const T = (es, en) => (EN ? en : es);
 const WIDTH = 640, HEIGHT = 470;
 
 const FRAG = `
@@ -306,7 +308,7 @@ const burbujas = () => `<g data-part="burbujas">${Array.from({ length: NB }, (_,
 const ATRAS = [plate(), argon(), hoseGas(), mast(), hosePolvoAtras(), stand(), ladle()];
 const svg = k.figureSvg({
   width: WIDTH, height: HEIGHT,
-  label: "Estación de desulfuración seccionada. Una lanza colgada de un mástil entra 2 m en una olla de arrabio; un dosificador de cal y un cilindro de argón la alimentan. En el corte, las burbujas suben desde las toberas hasta la escoria en el tiempo de residencia del artículo, la escoria acumula sulfuro y la carátula de la consola marca el azufre del modelo.",
+  label: EN ? "Cutaway desulfurization station. A lance hung from a mast reaches 2 m into a ladle of hot metal; a lime dispenser and an argon cylinder feed it. In the cut, bubbles rise from the nozzles to the slag in the residence time of the paper, the slag collects sulfide and the console dial shows the model sulfur." : "Estación de desulfuración seccionada. Una lanza colgada de un mástil entra 2 m en una olla de arrabio; un dosificador de cal y un cilindro de argón la alimentan. En el corte, las burbujas suben desde las toberas hasta la escoria en el tiempo de residencia del artículo, la escoria acumula sulfuro y la carátula de la consola marca el azufre del modelo.",
   body: ATRAS,
 });
 const FRENTE = [flujo(), sulfuro(), burbujas(), lance(), hosePolvoFinal(), hopper(), consola(),
@@ -352,7 +354,7 @@ function draw(dt) {
   const n = Math.round(NS * (1 - s / S0));
   if (n !== mostrados) { sulf.forEach((g, i) => { g.style.display = i < n ? "" : "none"; }); mostrados = n; }
   for (let i = 0; i < NB; i++) { if (!still.matches) fase[i] = (fase[i] + dt / TR) % 1; burbuja(i, fase[i]); }
-  const txt = "t = " + Math.round(t) + " s · S = " + (s >= 0.01 ? s.toFixed(3) : s.toFixed(4)) + " % · burbuja " + TR.toFixed(2) + " s";
+  const txt = "t = " + Math.round(t) + " s · S = " + (s >= 0.01 ? s.toFixed(3) : s.toFixed(4)) + " % · " + ${JSON.stringify(EN ? "bubble" : "burbuja")} + " " + TR.toFixed(2) + " s";
   if (readout.textContent !== txt) readout.textContent = txt;
   stage.setAttribute("aria-valuenow", String(Math.round(t)));
   stage.setAttribute("aria-valuetext", txt);
@@ -389,19 +391,19 @@ if (window.parent !== window) {
 
 const body = k.plateHtml({
   fig: "Fig 1",
-  title: "Estación de desulfuración",
-  hint: "Mueve el cursor para recorrer la inyección",
-  readout: `t = 0 s · S = 0.100 % · burbuja ${T_R.toFixed(2)} s`,
+  title: T("Estación de desulfuración", "Desulfurization station"),
+  hint: T("Mueve el cursor para recorrer la inyección", "Move the cursor to scrub through the injection"),
+  readout: `t = 0 s · S = 0.100 % · ${T("burbuja", "bubble")} ${T_R.toFixed(2)} s`,
   keys: [
-    { mark: "lit", label: `Burbujas de argón con partículas de cal: suben ${A.h} m en ${T_R.toFixed(2)} s` },
-    { mark: "raised", label: "Escoria: se carga de sulfuro conforme baja el azufre del arrabio" },
-    { mark: "line", label: "Líneas de corriente del arrabio en el corte: CFD propia en OpenFOAM, flujo promedio" },
+    { mark: "lit", label: T(`Burbujas de argón con partículas de cal: suben ${A.h} m en ${T_R.toFixed(2)} s`, `Argon bubbles with lime particles: they rise ${A.h} m in ${T_R.toFixed(2)} s`) },
+    { mark: "raised", label: T("Escoria: se carga de sulfuro conforme baja el azufre del arrabio", "Slag: it collects sulfide as the hot metal sulfur drops") },
+    { mark: "line", label: T("Líneas de corriente del arrabio en el corte: CFD propia en OpenFOAM, flujo promedio", "Hot metal streamlines in the cut: our own OpenFOAM CFD, average flow") },
   ],
-  caption: `Olla de 150 t seccionada por la lanza. El dosificador entrega 1.25 kg/s de cal arrastrada por argón; cada partícula viaja con su burbuja desde las toberas hasta la escoria en t_R = ${T_R.toFixed(2)} s (v_b = ${V_B.toFixed(2)} m/s), el tiempo real que se ve en la animación. La carátula S sigue la ec. 6 con k = ${K_CAL.toFixed(6)} 1/s: de 0.1 % a ${M.azufre(A.tiny, K_CAL, A.S0).toFixed(5)} % en 2400 s. Escala: 1 m = 50 unidades; el equipo auxiliar es supuesto. El brillo del metal es ilustrativo: el proceso es isotérmico y no se calculó un campo de temperatura.`,
-  body: `<style>${CSS}</style><div class="iso-stage fx-stage" tabindex="0" role="slider" aria-label="Estación de desulfuración: las flechas avanzan el tiempo de inyección" aria-valuemin="0" aria-valuemax="${A.tiny}" aria-valuenow="0">${svg}<canvas class="fx-layer fx-gl" aria-hidden="true"></canvas>${svgFrente}</div>`,
+  caption: EN ? `150 t ladle cut through the lance. The dispenser delivers 1.25 kg/s of lime carried by argon; each particle rides its bubble from the nozzles to the slag in t_R = ${T_R.toFixed(2)} s (v_b = ${V_B.toFixed(2)} m/s), the real time seen in the animation. The S dial follows eq. 6 with k = ${K_CAL.toFixed(6)} 1/s: from 0.1 % to ${M.azufre(A.tiny, K_CAL, A.S0).toFixed(5)} % in 2400 s. Scale: 1 m = 50 units; auxiliary equipment is assumed. The metal glow is illustrative: the process is isothermal and no temperature field was computed.` : `Olla de 150 t seccionada por la lanza. El dosificador entrega 1.25 kg/s de cal arrastrada por argón; cada partícula viaja con su burbuja desde las toberas hasta la escoria en t_R = ${T_R.toFixed(2)} s (v_b = ${V_B.toFixed(2)} m/s), el tiempo real que se ve en la animación. La carátula S sigue la ec. 6 con k = ${K_CAL.toFixed(6)} 1/s: de 0.1 % a ${M.azufre(A.tiny, K_CAL, A.S0).toFixed(5)} % en 2400 s. Escala: 1 m = 50 unidades; el equipo auxiliar es supuesto. El brillo del metal es ilustrativo: el proceso es isotérmico y no se calculó un campo de temperatura.`,
+  body: `<style>${CSS}</style><div class="iso-stage fx-stage" tabindex="0" role="slider" aria-label="${T("Estación de desulfuración: las flechas avanzan el tiempo de inyección", "Desulfurization station: arrow keys move the injection time")}" aria-valuemin="0" aria-valuemax="${A.tiny}" aria-valuenow="0">${svg}<canvas class="fx-layer fx-gl" aria-hidden="true"></canvas>${svgFrente}</div>`,
 });
 
 mkdirSync(OUT, { recursive: true });
-const nombre = theme === "light" ? "olla-light.html" : "olla.html";
-writeFileSync(join(OUT, nombre), k.pageHtml({ title: "Estación de desulfuración", theme, body, script: kitScript() + glScript() + live, width: 760 }));
+const nombre = (theme === "light" ? "olla-light" : "olla") + (EN ? "-en" : "") + ".html";
+writeFileSync(join(OUT, nombre), k.pageHtml({ title: T("Estación de desulfuración", "Desulfurization station"), theme, body, script: kitScript() + glScript() + live, width: 760 }));
 console.log("escrito", nombre, "TIP", TIP, "BATH", BATH, "RIM", RIM);

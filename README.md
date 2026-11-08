@@ -22,7 +22,7 @@ python -m http.server 8810
 # abrir http://localhost:8810
 ```
 
-En Windows también sirve `Ver_pagina.bat`. Todo lo que la página necesita ya viene en `web/`: datos, video, three.js y la figura. No descarga nada de internet.
+En Windows también sirve `Ver_pagina.bat`. Hay versión en inglés en `index-en.html`, con enlace ES/EN en la barra. Todo lo que la página necesita ya viene en `web/`: datos, video, three.js y la figura. No descarga nada de internet.
 
 ### Qué se ve
 
@@ -42,9 +42,19 @@ En Windows también sirve `Ver_pagina.bat`. Todo lo que la página necesita ya v
 
 ![Fig 1: estación de desulfuración seccionada, interactiva](docs/img/figura.jpg)
 
-**Líneas de corriente 3D** del flujo promedio del caso base, en un visor que se puede girar.
+**Explorador 3D de la simulación.** Todo lo que muestra sale de la CFD:
+- **Selector de caso:** el caso base y los 9 casos del barrido (profundidad de lanza × caudal de gas), para comparar la recirculación en 3D.
+- **Recorrido guiado** de seis paradas: toberas, pluma, recirculación, fondo y superficie.
+- **Prueba de mezclado:** un tinte transportado por el flujo promedio, que se suelta con un clic sobre un corte y muestra por dónde viaja el metal y dónde se estanca.
+- **Corte vertical** que gira alrededor de la lanza, coloreado con la rapidez del arrabio.
+- **Rebanada horizontal** que sube y baja.
+- **Pluma de argón** como volumen, con sus 40 instantes reales.
+- **Partículas** arrastradas por la velocidad 3D calculada, que se pueden soltar desde las toberas.
+- **Líneas de corriente.**
 
-![Visor 3D de líneas de corriente dentro de la olla](docs/img/visor.jpg)
+Al pasar el cursor sobre un corte se lee la rapidez y la fracción de gas en ese punto. La vista se puede compartir por liga, por ejemplo `?caso=c11&giro=90&rebanada=0.9`, `?parada=3` o `?tinte=1`. Tiene modo de pantalla completa.
+
+![Explorador 3D: corte vertical girado, rebanada horizontal y pluma de argón dentro de la olla](docs/img/visor.jpg)
 
 ## Publicar la página
 
@@ -168,6 +178,9 @@ blender -b --factory-startup --python video.py -- render/c12 render/c12.mp4 24 r
 
 ```bash
 python web/construir_datos.py   # copia datos, video, póster y aligera las líneas 3D para el visor
+python web/construir_volumen.py # velocidad 3D de los 10 casos y pluma de argón del explorador (lee extraccion/c*/*.npz)
+python web/traducir_en.py       # genera index-en.html a partir de index.html
+node figura/build.mjs --en      # figura isométrica en inglés
 node figura/build.mjs           # regenera web/figura/olla.html
 ```
 

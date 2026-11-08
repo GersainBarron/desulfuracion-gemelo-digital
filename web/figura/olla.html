@@ -1008,7 +1008,7 @@ function draw(dt) {
   const n = Math.round(NS * (1 - s / S0));
   if (n !== mostrados) { sulf.forEach((g, i) => { g.style.display = i < n ? "" : "none"; }); mostrados = n; }
   for (let i = 0; i < NB; i++) { if (!still.matches) fase[i] = (fase[i] + dt / TR) % 1; burbuja(i, fase[i]); }
-  const txt = "t = " + Math.round(t) + " s · S = " + (s >= 0.01 ? s.toFixed(3) : s.toFixed(4)) + " % · burbuja " + TR.toFixed(2) + " s";
+  const txt = "t = " + Math.round(t) + " s · S = " + (s >= 0.01 ? s.toFixed(3) : s.toFixed(4)) + " % · " + "burbuja" + " " + TR.toFixed(2) + " s";
   if (readout.textContent !== txt) readout.textContent = txt;
   stage.setAttribute("aria-valuenow", String(Math.round(t)));
   stage.setAttribute("aria-valuetext", txt);
