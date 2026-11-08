@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Desulfuración de arrabio · gemelo digital</title>
+<meta name="description" content="Gemelo digital interactivo del modelo de desulfuración de arrabio por inyección de polvos de Barrón, Hilerio y Medina (2015), con simulación CFD 3D en OpenFOAM.">
+<link rel="stylesheet" href="estilo.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
+</script>
+<script type="module" src="app.js"></script>
+<script type="module" src="visor3d.js"></script>
+<script>
+  // la figura vive en su propia pagina; el marco toma su altura para no tener scroll interno
+  addEventListener("message", (e) => {
+    const f = document.querySelector(".figura-olla iframe");
+    if (f && e.source === f.contentWindow && e.data && e.data.figura === "olla") f.style.height = e.data.alto + "px";
+  });
+</script>
+</head>
+<body>
+
+<header class="barra">
+  <a class="marca" href="#inicio">Desulfuración <span>· gemelo digital</span></a>
+  <nav>
+    <a href="#proceso">Proceso</a>
+    <a href="#modelo">Modelo</a>
+    <a href="#gemelo">Gemelo</a>
+    <a href="#figuras">Figuras</a>
+    <a href="#cfd">CFD 3D</a>
+    <a href="#metodo">Método</a>
+    <a href="#creditos">Créditos</a>
+  </nav>
+</header>
+
+<main>
+
+<section id="inicio" class="portada">
+  <div class="envoltura">
+    <p class="antetitulo">Gemelo digital interactivo</p>
+    <h1>Modeling and Simulation of Hot Metal Desulfurization by Powder&nbsp;Injection</h1>
+    <p class="subtitulo">Desulfuración de arrabio por inyección de polvos: el modelo cinético de Barrón, Hilerio y Medina (2015), llevado a un gemelo que se puede mover, y acompañado de una simulación de fluidos en 3D de la olla.</p>
+    <dl class="cifras">
+      <div><dt>Olla</dt><dd>150 t <small>de arrabio</small></dd></div>
+      <div><dt>Azufre con cal</dt><dd>0.1 → <span id="cifra-sfinal">0.0018</span> % <small>en 40 min</small></dd></div>
+      <div><dt>CFD 3D</dt><dd>515&#8239;520 <small>celdas</small></dd></div>
+      <div><dt>Corridas</dt><dd>12 <small>casos en OpenFOAM</small></dd></div>
+    </dl>
+  </div>
+  <figure class="video envoltura-ancha">
+    <video src="medios/c12.mp4" poster="medios/c12_poster.jpg" autoplay muted loop playsinline controls preload="metadata"></video>
+    <figcaption>Corte vertical de la olla por la lanza y las dos toberas. El color es la rapidez del arrabio y las líneas siguen su recorrido; ambos salen de la simulación CFD en OpenFOAM, no de una animación aproximada. Render en Blender.</figcaption>
+  </figure>
+</section>
+
+<section id="proceso" class="seccion">
+  <div class="envoltura">
+    <p class="antetitulo">1 · El proceso</p>
+    <h2>Quitar el azufre del arrabio antes de hacer acero</h2>
+    <div class="dos-columnas">
+      <div class="texto">
+        <p>El azufre vuelve frágil al acero: le quita ductilidad y tenacidad al impacto. Para fabricar aceros de bajo azufre, el arrabio que sale del alto horno se trata en la olla antes de pasar al convertidor de oxígeno.</p>
+        <p>En la inyección de polvos, una lanza refractaria sumergida en el baño sopla un gas inerte (argón o nitrógeno) que arrastra el reactivo en polvo. Las partículas suben junto con las burbujas, reaccionan con el azufre disuelto y el sulfuro que se forma flota hasta la escoria, donde queda atrapado.</p>
+        <p>Se usan tres reactivos, solos o mezclados. La cal es el más barato; el carburo de calcio y el magnesio desulfuran más rápido, pero cuestan más. El artículo estudia cada uno por separado (mono-inyección) y en mezclas (co-inyección).</p>
+      </div>
+      <aside class="reacciones">
+        <span class="etq">Reacciones de desulfuración</span>
+        <ul>
+          <li><span class="rx">CaO + [S] → CaS + (O)</span><small>cal</small></li>
+          <li><span class="rx">CaC₂ + [S] → CaS + 2C</span><small>carburo de calcio</small></li>
+          <li><span class="rx">Mg + [S] → MgS</span><small>magnesio</small></li>
+        </ul>
+        <p>[S] es el azufre disuelto en el arrabio. El producto sólido sube a la escoria.</p>
+      </aside>
+    </div>
+    <figure class="figura-olla">
+      <iframe src="figura/olla.html" title="Estación de desulfuración seccionada, interactiva" loading="lazy" scrolling="no"></iframe>
+    </figure>
+  </div>
+</section>
+
+<section id="modelo" class="seccion oscura">
+  <div class="envoltura">
+    <p class="antetitulo">2 · El modelo</p>
+    <h2>De la ecuación de continuidad a una sola exponencial</h2>
+    <p class="intro">El artículo parte del balance general de azufre en la olla y, con dos supuestos físicos, lo reduce a una ecuación diferencial ordinaria con solución cerrada.</p>
+    <div class="resultado-modelo"><span class="etq">Resultado · ec. 6</span><span class="ec"><var>S</var>(<var>t</var>) = <var>S</var><sub>e</sub> + (<var>S</var><sub>0</sub> − <var>S</var><sub>e</sub>) e<sup>−<var>k t</var></sup></span><p>El azufre cae de forma exponencial desde el valor inicial <var>S</var><sub>0</sub> hacia el de equilibrio <var>S</var><sub>e</sub>; todo el problema se reduce a conocer la constante <var>k</var>.</p></div>
+    <details class="plegable">
+      <summary>Ver la derivación paso a paso (ec. 1 a 6)</summary>
+    <ol class="pasos">
+        <li><span class="etq">Balance de azufre · ec. 1</span><span class="ec">∂<var>S</var>/∂<var>t</var> + <b>v</b>·∇<var>S</var> = <var>D</var><sub>S</sub> ∇²<var>S</var> + <var>r</var><sub>S</sub></span><p>Ecuación de continuidad: el azufre se acumula, viaja con el flujo (convección), se difunde y desaparece por reacción a la tasa <var>r</var><sub>S</sub>. El artículo la escribe en coordenadas cilíndricas; aquí va en forma compacta.</p></li>
+        <li><span class="etq">Transporte axial · ec. 2</span><span class="ec">∂<var>S</var>/∂<var>t</var> + <var>v</var><sub>z</sub> ∂<var>S</var>/∂<var>z</var> = <var>D</var><sub>S</sub> ∂²<var>S</var>/∂<var>z</var>² + <var>r</var><sub>S</sub></span><p>Las burbujas se mueven sobre todo hacia arriba, así que se conserva solo la dirección vertical <var>z</var>.</p></li>
+        <li><span class="etq">Tanque bien agitado · ec. 3</span><span class="ec">d<var>S</var>/d<var>t</var> = <var>r</var><sub>S</sub></span><p>La difusión es pequeña frente a la convección y la agitación del gas deja gradientes de concentración pequeños: el azufre solo cambia con el tiempo.</p></li>
+        <li><span class="etq">Cinética de primer orden · ec. 4 y 5</span><span class="ec"><var>r</var><sub>S</sub> = −<var>k</var> (<var>S</var> − <var>S</var><sub>e</sub>) &nbsp;&nbsp; <var>k</var> = <var>k</var><sub>0</sub> e<sup>−<var>E</var><sub>a</sub>/<var>RT</var></sup></span><p>La rapidez de desulfuración es proporcional a la distancia al equilibrio <var>S</var><sub>e</sub>. La constante <var>k</var> depende de la temperatura según Arrhenius; el modelo trabaja a temperatura constante, así que <var>k</var> es fija durante la inyección.</p></li>
+        <li><span class="etq">Solución · ec. 6</span><span class="ec"><var>S</var>(<var>t</var>) = <var>S</var><sub>e</sub> + (<var>S</var><sub>0</sub> − <var>S</var><sub>e</sub>) e<sup>−<var>k t</var></sup></span><p>El azufre cae de forma exponencial desde <var>S</var><sub>0</sub> hacia <var>S</var><sub>e</sub>. Todo el problema se reduce a conocer <var>k</var>.</p></li>
+      </ol>
+    </details>
+
+    <h3 class="subtitulo-seccion">¿De dónde sale <var>k</var>?</h3>
+    <p class="intro">Para la cal, <var>k</var> se calcula con la física de la inyección, en tres pasos encadenados.</p>
+    <ol class="pasos">
+      <li><span class="etq">Ascenso de la burbuja · ec. 9</span><span class="ec"><var>v</var><sub>b</sub> = <span class="frac"><span><var>g</var> (<var>ρ</var><sub>M</sub> − <var>ρ</var><sub>g</sub>) <var>d</var><sub>b</sub><sup>2</sup></span><span>18 <var>μ</var><sub>M</sub></span></span></span><p>Ley de Stokes: la burbuja sube más rápido cuanto mayores son la diferencia de densidades y su diámetro, y más lento cuanto más viscoso es el metal.</p></li>
+      <li><span class="etq">Tiempo de residencia · ec. 8</span><span class="ec"><var>t</var><sub>R</sub> = <span class="frac"><span><var>h</var><sub>i</sub></span><span><var>v</var><sub>b</sub></span></span></span><p>La partícula viaja con la burbuja desde la punta de la lanza hasta la superficie. Una lanza más profunda le da más tiempo de contacto con el metal.</p></li>
+      <li><span class="etq">Constante de la cal · ec. 7, de Oeters</span><span class="ec"><var>k</var><sub>CaO</sub> = <span class="frac"><span>6 <var>β</var> <var>t</var><sub>R</sub> <var>q</var><sub>CaO</sub> <var>ρ</var><sub>M</sub></span><span><var>d</var><sub>p</sub> <var>w</var><sub>M</sub> <var>ρ</var><sub>CaO</sub></span></span></span><p>Crece con el coeficiente de transferencia de masa <var>β</var>, el tiempo de residencia y el flujo de cal. El término 6/<var>d</var><sub>p</sub> es el área por unidad de volumen de una esfera: partículas más finas ofrecen más superficie y reaccionan más rápido. Una olla con más metal diluye el efecto.</p></li>
+    </ol>
+
+    <h3 class="subtitulo-seccion">Mezclas y vida media</h3>
+    <ol class="pasos">
+      <li><span class="etq">Co-inyección · ec. 15</span><span class="ec"><var>k</var><sub>m</sub> = Σ <var>x</var><sub>i</sub> <var>k</var><sub>i</sub></span><p>La constante de una mezcla es el promedio de las de cada polvo, ponderado por su fracción molar <var>x</var><sub>i</sub>. Las composiciones de la tabla 3 están en % en peso y se convierten a fracción molar con la masa molar de cada polvo.</p></li>
+      <li><span class="etq">Vida media · ec. 16</span><span class="ec"><var>t</var><sub>h</sub> = <span class="frac"><span>ln 2</span><span><var>k</var></span></span></span><p>Tiempo para que el azufre por eliminar, <var>S</var> − <var>S</var><sub>e</sub>, se reduzca a la mitad. No depende de cuánto azufre había al inicio, así que sirve para comparar reactivos.</p></li>
+    </ol>
+
+    <div class="dos-columnas datos-modelo">
+      <div>
+        <h3>Parámetros del caso de validación</h3>
+        <table class="tabla simbolos">
+          <thead><tr><th>Símbolo</th><th>Significado</th><th>Valor</th></tr></thead>
+          <tbody>
+            <tr><td><var>β</var></td><td>coeficiente de transferencia de masa</td><td>6.3×10⁻⁵ m/s</td></tr>
+            <tr><td><var>q</var><sub>CaO</sub></td><td>flujo de cal</td><td>1.25 kg/s</td></tr>
+            <tr><td><var>ρ</var><sub>M</sub></td><td>densidad del arrabio</td><td>7100 kg/m³</td></tr>
+            <tr><td><var>μ</var><sub>M</sub></td><td>viscosidad del arrabio</td><td>0.0067 kg/(m·s)</td></tr>
+            <tr><td><var>w</var><sub>M</sub></td><td>masa de arrabio</td><td>150&#8239;000 kg</td></tr>
+            <tr><td><var>d</var><sub>p</sub></td><td>diámetro de partícula de cal</td><td>1.0×10⁻⁵ m</td></tr>
+            <tr><td><var>ρ</var><sub>CaO</sub></td><td>densidad de la cal</td><td>3345 kg/m³</td></tr>
+            <tr><td><var>h</var><sub>i</sub></td><td>profundidad de la lanza</td><td>2.0 m</td></tr>
+            <tr><td><var>d</var><sub>b</sub></td><td>diámetro de burbuja</td><td>1.1725×10⁻³ m</td></tr>
+            <tr><td><var>ρ</var><sub>g</sub></td><td>densidad del gas</td><td>1.165 kg/m³</td></tr>
+            <tr><td><var>S</var><sub>e</sub></td><td>azufre de equilibrio</td><td>0 % en peso</td></tr>
+          </tbody>
+        </table>
+        <p class="nota">Tabla 1 del artículo.</p>
+      </div>
+      <div>
+        <h3>Validación</h3>
+        <p class="parrafo">El caso de validación es la desulfuración con cal de 150 t de arrabio reportada por Oeters (1989), con 0.1 % de azufre inicial y 2400 s de inyección. Con la tabla 1 resultan <var>v</var><sub>b</sub> = 0.7938 m/s, <var>t</var><sub>R</sub> = 2.52 s y <var>k</var> = 0.001684 1/s, y la curva calculada coincide con los datos de referencia (figura 2 del artículo). Reproducidos aquí, los tres valores coinciden hasta la cuarta cifra.</p>
+        <h3>Mezclas de co-inyección</h3>
+        <table class="tabla">
+          <thead><tr><th>Mezcla</th><th>CaO</th><th>CaC₂</th><th>Mg</th><th><var>k</var><sub>m</sub> (1/s)</th></tr></thead>
+          <tbody>
+            <tr><td>M1</td><td>0 %</td><td>50 %</td><td>50 %</td><td>0.002869</td></tr>
+            <tr><td>M2</td><td>25 %</td><td>37.5 %</td><td>37.5 %</td><td>0.002664</td></tr>
+            <tr><td>M3</td><td>50 %</td><td>25 %</td><td>25 %</td><td>0.002412</td></tr>
+            <tr><td>M4</td><td>75 %</td><td>12.5 %</td><td>12.5 %</td><td>0.002095</td></tr>
+            <tr><td>M5</td><td>100 %</td><td>0 %</td><td>0 %</td><td>0.001684</td></tr>
+          </tbody>
+        </table>
+        <p class="nota">Tabla 3 del artículo, composición en % en peso. Constantes de cada polvo (tabla 2): cal 0.001684 1/s (este modelo), CaC₂ 0.004 1/s (Zhao, 1992) y Mg 0.00244 1/s (Irons y Guthrie, 1981).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="gemelo" class="seccion">
+  <div class="envoltura">
+    <p class="antetitulo">3 · Gemelo interactivo</p>
+    <h2>Mueve la operación y mira cómo cambia la desulfuración</h2>
+    <p class="intro">Las ecuaciones del artículo corren en vivo en el navegador. La curva naranja es la condición que eliges; la punteada, la misma mezcla con los valores del artículo.</p>
+
+    <div class="gemelo">
+      <form class="controles" id="controles" autocomplete="off">
+        <fieldset>
+          <legend>Mezcla de polvo</legend>
+          <div class="presets" role="group" aria-label="Mezclas del artículo">
+            <button type="button" data-cao="0">M1</button>
+            <button type="button" data-cao="25">M2</button>
+            <button type="button" data-cao="50">M3</button>
+            <button type="button" data-cao="75">M4</button>
+            <button type="button" data-cao="100">M5</button>
+          </div>
+          <div class="deslizador" data-id="cao"></div>
+          <div class="deslizador" data-id="reparto"></div>
+          <div class="barra-mezcla" id="barra-mezcla" aria-hidden="true"><span class="cao"></span><span class="cac2"></span><span class="mg"></span></div>
+        </fieldset>
+        <fieldset>
+          <legend>Operación</legend>
+          <div class="deslizador" data-id="q"></div>
+          <div class="deslizador" data-id="h"></div>
+          <div class="deslizador" data-id="tiny"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Material</legend>
+          <div class="deslizador" data-id="dp"></div>
+          <div class="deslizador" data-id="db"></div>
+          <div class="deslizador" data-id="w"></div>
+          <div class="deslizador" data-id="s0"></div>
+        </fieldset>
+        <button type="button" class="restablecer" id="restablecer">Volver a los valores del artículo</button>
+      </form>
+
+      <div class="panel">
+        <div class="lecturas">
+          <div><span>Constante de la mezcla</span><b id="l-km">—</b><small>1/s</small></div>
+          <div><span>Vida media</span><b id="l-th">—</b><small>s</small></div>
+          <div><span>Azufre al final</span><b id="l-sf">—</b><small>% en peso</small></div>
+          <div><span>Tiempo para 0.005 % S</span><b id="l-t005">—</b><small id="l-t005-u">min</small></div>
+        </div>
+        <div class="grafica-cabeza">
+          <h3>Concentración de azufre contra tiempo</h3>
+          <label class="interruptor"><input type="checkbox" id="escala-log"> escala logarítmica</label>
+        </div>
+        <div class="grafica" id="g-gemelo"></div>
+        <h3 class="cadena-titulo">La cadena del modelo, en vivo</h3>
+    <ol class="cadena" id="cadena">
+      <li><span>Burbuja</span><b id="c-vb">—</b><small>m/s · <var>v</var><sub>b</sub></small></li>
+      <li><span>Residencia</span><b id="c-tr">—</b><small>s · <var>t</var><sub>R</sub></small></li>
+      <li><span>Cinética de la cal</span><b id="c-kcao">—</b><small>1/s · <var>k</var><sub>CaO</sub></small></li>
+      <li><span>Mezcla</span><b id="c-km">—</b><small>1/s · <var>k</var><sub>m</sub></small></li>
+    </ol>
+      </div>
+    </div>
+    <p class="nota">Las constantes del CaC₂ (0.004 1/s, Zhao 1992) y del Mg (0.00244 1/s, Irons y Guthrie 1981) son las de la tabla 2 del artículo y no dependen de los controles de operación; la de la cal sí, a través de la ec. 7.</p>
+  </div>
+</section>
+
+<section id="figuras" class="seccion oscura">
+  <div class="envoltura">
+    <p class="antetitulo">4 · Figuras del artículo</p>
+    <h2>Las tres figuras de resultados, recalculadas</h2>
+    <p class="intro">Generadas con el mismo modelo que mueve al gemelo y con los parámetros de las tablas 1 a 3; los textos resumen la lectura que hace el artículo. Pasa el cursor sobre cada gráfica para leer los valores.</p>
+    <div class="figuras">
+      <figure>
+        <div class="grafica" id="g-fig5"></div>
+        <figcaption><b>Figura 5.</b> Mono-inyección con 0.1 % de azufre inicial. El carburo de calcio es el más rápido, seguido del magnesio; la cal es la más lenta, sobre todo en la primera mitad de la inyección. El costo limita el uso de los dos primeros.</figcaption>
+      </figure>
+      <figure>
+        <div class="grafica" id="g-fig6"></div>
+        <figcaption><b>Figura 6.</b> Co-inyección de las cinco mezclas de la tabla 3. La mezcla sin cal desulfura más rápido; cada aumento de cal reduce <var>k</var><sub>m</sub> y hace más lenta la caída del azufre.</figcaption>
+      </figure>
+      <figure>
+        <div class="grafica" id="g-fig7"></div>
+        <figcaption><b>Figura 7.</b> Vida media contra el contenido de cal: sube de unos 242 s sin cal a 412 s con cal pura. Más cal hace más lenta la desulfuración, aunque la cal es el reactivo más barato.</figcaption>
+      </figure>
+    </div>
+
+    <div class="conclusiones">
+      <h3>Conclusiones del artículo</h3>
+      <ol>
+        <li>Las burbujas del gas de arrastre agitan el baño; la simulación CFD respalda el supuesto de tanque bien agitado.</li>
+        <li>El modelo de mono-inyección con cal, validado con datos de la literatura, representa el proceso de forma cuantitativa.</li>
+        <li>Se propone una constante de mezcla basada en la fracción molar y la constante de cada polvo.</li>
+        <li>El contenido de cal gobierna la rapidez de la co-inyección, sobre todo en la primera mitad: más cal, mayor vida media.</li>
+        <li>Para acelerar la desulfuración conviene reducir la cal en la mezcla; como es el polvo más barato, la decisión requiere un análisis económico, técnico y de productividad en planta.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="cfd" class="seccion">
+  <div class="envoltura">
+    <p class="antetitulo">5 · Simulación CFD 3D</p>
+    <h2>El baño por dentro: OpenFOAM con los parámetros del artículo</h2>
+    <div class="dos-columnas">
+      <div class="texto">
+        <h3>La CFD del artículo</h3>
+        <p>Para comprobar el supuesto de tanque bien agitado, el artículo simula la olla en 2D con Fluent 6.1: flujo transitorio e isotérmico, modelo VOF para las dos fases y turbulencia k-ε estándar. El gas sale por dos toberas a 45° con la velocidad de burbuja del modelo, con <var>k</var> = 0.01 <var>v</var><sub>b</sub>² a la entrada y <var>ε</var> calculada con el diámetro de la tobera. A los 5 s las burbujas suben junto a la lanza y muchas se abren hacia las paredes en la parte alta (figura 3), y las líneas de corriente muestran agitación hasta el fondo de la olla (figura 4).</p>
+        <h3>La CFD de este gemelo</h3>
+        <p>Aquí la misma olla se simuló completa en 3D con <b>OpenFOAM</b>. Con burbujas de poco más de 1 mm en un baño de más de 2.5 m de alto, el gas se trata como una fase continua que convive con el arrabio (modelo Euler–Euler), en lugar de seguir cada interfase como en VOF; la turbulencia es k-ε de mezcla. Se respetan la profundidad de la lanza, las dos toberas de 20 mm a 45°, la velocidad de salida y los valores de <var>k</var> y <var>ε</var> de entrada del artículo.</p>
+        <p>Cada caso simula 60 s de flujo y los campos se promedian entre 20 s y 60 s, cuando la circulación ya se estableció. El argón sube junto a la lanza y, al llegar a la superficie, se abre hacia las paredes; el arrabio baja por los costados y forma un gran lazo de recirculación a cada lado de la lanza que llega hasta el fondo: el mismo cuadro de las figuras 3 y 4.</p>
+      </div>
+      <dl class="ficha">
+        <div><dt>Solver</dt><dd>twoPhaseEulerFoam · OpenFOAM v2606</dd></div>
+        <div><dt>Geometría</dt><dd>olla Ø 3.2 m, baño de 2.63 m</dd></div>
+        <div><dt>Lanza</dt><dd>0.2 m, 2 toberas de 20 mm a 45°</dd></div>
+        <div><dt>Malla fina</dt><dd>515&#8239;520 celdas</dd></div>
+        <div><dt>Argón</dt><dd>burbujas de 1.17 mm · 0.5 L/s</dd></div>
+        <div><dt>Arrabio</dt><dd>7100 kg/m³ · 0.0067 Pa·s · 1350 °C</dd></div>
+        <div><dt>Turbulencia</dt><dd>k-ε de mezcla</dd></div>
+        <div><dt>Tiempo</dt><dd>60 s por caso, promedio de 20 a 60 s</dd></div>
+        <div><dt>Cómputo</dt><dd>12 corridas, local, 8 núcleos</dd></div>
+      </dl>
+    </div>
+
+    <figure class="visor">
+      <div class="visor-lienzo" id="visor3d" tabindex="0" aria-label="Líneas de corriente 3D; arrastra para girar">
+        <p class="visor-cargando">Cargando líneas de corriente…</p>
+      </div>
+      <div class="visor-pie">
+        <div class="escala-color"><span>0</span><i></i><span>0.3 m/s</span></div>
+        <button type="button" id="visor-giro" aria-pressed="true">Pausar giro</button>
+        <button type="button" id="visor-flujo" aria-pressed="true">Flujo animado</button>
+        <figcaption>183 líneas de corriente del flujo promedio del caso base (malla fina); los pulsos avanzan al ritmo real del arrabio, 10 veces más rápido. Arrastra para girar, rueda para acercar.</figcaption>
+      </div>
+    </figure>
+
+    <div class="dos-columnas resultados">
+      <div>
+        <div class="grafica-cabeza">
+          <h3>Barrido: caudal de gas × profundidad de lanza</h3>
+          <div class="segmentos" role="group" aria-label="Medida">
+            <button type="button" data-medida="v_media_m_s" aria-pressed="true">media</button>
+            <button type="button" data-medida="v_p95_m_s" aria-pressed="false">percentil 95</button>
+          </div>
+        </div>
+        <div class="grafica" id="g-barrido"></div>
+        <p class="nota">Rapidez del arrabio en el corte por las toberas, malla media. Hundir más la lanza da más altura a la pluma y acelera la circulación; duplicar el gas también, en menor medida.</p>
+      </div>
+      <div>
+        <h3>Estudio de malla</h3>
+        <table class="tabla" id="t-malla">
+          <thead><tr><th>Malla</th><th>Celdas</th><th>v media</th><th>v p95</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="nota">Caso base con caudal y lanza del artículo. La malla media basta para la circulación global, con la que se corrió el barrido; la fina resuelve mejor la pluma y se usó para el caso base con toberas del video.</p>
+        <details class="supuestos">
+          <summary>Supuestos de la simulación</summary>
+          <p>Tomado del artículo: masa de 150 t, profundidad de lanza, dos toberas de 20 mm a 45°, diámetro de burbuja, densidad y viscosidad del arrabio, k y ε de entrada. Supuesto aquí por ser típico de una olla de 150 t: diámetro de 3.2 m, lanza cuadrada de 0.2 m, 0.4 m de espacio libre, tensión superficial de 1.7 N/m y proceso isotérmico a 1350 °C.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="metodo" class="seccion oscura">
+  <div class="envoltura">
+    <p class="antetitulo">6 · Cómo se hizo</p>
+    <h2>Del artículo al gemelo</h2>
+    <ol class="metodo">
+      <li><b>Reproducir el modelo.</b> Las ecuaciones 6 a 9, 15 y 16 se programaron en Python con los valores de las tablas 1 a 3 y se comprobaron contra los resultados publicados: velocidad de burbuja, tiempo de residencia, constante de la cal, azufre final y las constantes de las cinco mezclas.</li>
+      <li><b>Llevarlo al navegador.</b> El mismo modelo corre en JavaScript dentro de esta página; se comparó contra la versión de Python en 28 puntos, sin diferencias.</li>
+      <li><b>Simular el flujo.</b> Doce corridas 3D en OpenFOAM: un estudio de malla (gruesa, media y fina), un barrido de 3 caudales de gas × 3 profundidades de lanza y el caso base en malla fina con las toberas modeladas. Corrieron en una computadora personal, con pausa y reanudación automáticas.</li>
+      <li><b>Extraer los campos.</b> ParaView y Python sacan de cada corrida el corte vertical por la lanza, el flujo promedio y las líneas de corriente.</li>
+      <li><b>Visualizar.</b> Blender (Cycles) arma el corte de la olla con esos campos; three.js muestra las líneas de corriente en 3D en esta página.</li>
+    </ol>
+    <div class="conclusiones">
+      <h3>Alcances</h3>
+      <ul>
+        <li>Como en el artículo, el proceso es isotérmico; la ec. 5 no se usa porque requiere <var>k</var><sub>0</sub> y <var>E</var><sub>a</sub>.</li>
+        <li>La escoria no se modela.</li>
+        <li>La CFD resuelve el flujo del gas y del metal, no la química: las curvas de azufre salen del modelo publicado.</li>
+        <li>El diámetro de la olla, la sección de la lanza y algunas propiedades no vienen en el artículo; se tomaron valores típicos de una olla de 150 t (ver los supuestos en la sección 5).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="creditos" class="seccion creditos">
+  <div class="envoltura">
+    <p class="antetitulo">Créditos</p>
+    <p><b>Basado en:</b> Barrón, M. A., Hilerio, I. y Medina, D. Y. (2015). Modeling and Simulation of Hot Metal Desulfurization by Powder Injection. <i>Open Journal of Applied Sciences</i>, 5, 295–303. <a href="https://doi.org/10.4236/ojapps.2015.56030">doi:10.4236/ojapps.2015.56030</a></p>
+    <p><b>Autores del modelo original:</b> Miguel A. Barrón, Isaías Hilerio y Dulce Y. Medina, Departamento de Materiales, Universidad Autónoma Metropolitana, Unidad Azcapotzalco, Ciudad de México.</p>
+    <p><b>Licencia:</b> el artículo se publica bajo Creative Commons Atribución 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/deed.es">CC BY 4.0</a>), que permite reutilizar su modelo y sus figuras con crédito.</p>
+    <p><b>Datos citados por el artículo:</b> validación con Oeters (1989), <i>Metallurgy of Steelmaking</i>; constante del carburo de calcio de Zhao (1992); constante del magnesio de Irons y Guthrie (1981).</p>
+    <p><b>Esta reinterpretación:</b> gemelo digital interactivo elaborado por Gersain Barrón con software libre (OpenFOAM, ParaView, Python, Blender, three.js). Los cortes, burbujas y líneas de corriente provienen de simulaciones CFD propias en OpenFOAM con los parámetros del artículo; las curvas de azufre provienen del modelo publicado.</p>
+  </div>
+</section>
+
+</main>
+<div class="tooltip" id="tooltip" role="status" hidden></div>
+</body>
+</html>

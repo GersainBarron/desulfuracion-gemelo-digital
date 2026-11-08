@@ -1,0 +1,38 @@
+{
+  "nota": "Supuestos de la CFD. 'articulo' = tomado de Barron, Hilerio y Medina (2015); 'supuesto' = valor tipico que se senala en la pagina.",
+  "olla": {
+    "masa_kg": [150000, "articulo"],
+    "diametro_m": [3.2, "supuesto: olla tipica de 150 t"],
+    "altura_bano_m": ["calculada: masa / (rho * area) = 2.63 m", "derivado"],
+    "espacio_libre_m": [0.4, "supuesto"]
+  },
+  "lanza": {
+    "lado_seccion_m": [0.2, "supuesto: lanza refractaria cuadrada de 0.2 m"],
+    "profundidad_m": [2.0, "articulo (h_i), variable del barrido"],
+    "toberas": [2, "articulo"],
+    "diametro_tobera_m": [0.02, "articulo"],
+    "angulo_grados": [45, "articulo"],
+    "velocidad_gas_m_s": [0.7938, "articulo (v_b en las toberas)"],
+    "caudal_m3_s": ["2 toberas x area x 0.7938 = 4.99e-4 m3/s, escalado por factor_caudal_gas", "derivado"]
+  },
+  "arrabio": {
+    "densidad_kg_m3": [7100, "articulo"],
+    "viscosidad_Pa_s": [0.0067, "articulo"],
+    "Cv_J_kgK": [820, "supuesto"],
+    "Pr": [0.1, "supuesto"]
+  },
+  "argon": {
+    "diametro_burbuja_m": [0.0011725, "articulo"],
+    "masa_molar_g_mol": [39.95, "fisico"],
+    "viscosidad_Pa_s": [6.6e-5, "supuesto: argon a 1623 K"],
+    "Cp_J_kgK": [520, "fisico"]
+  },
+  "interfase": {"tension_superficial_N_m": [1.7, "supuesto: arrabio-argon"]},
+  "turbulencia": {
+    "modelo": ["mixtureKEpsilon", "equivalente al k-epsilon del articulo"],
+    "k_entrada": [0.0063, "articulo"],
+    "epsilon_entrada": [0.05, "articulo"]
+  },
+  "temperatura_K": [1623, "supuesto: isotermico a 1350 C"],
+  "solver": ["twoPhaseEulerFoam (Euler-Euler)", "el articulo uso VOF 2D; Euler-Euler resuelve burbujas de 1 mm en una olla 3D"]
+}

@@ -1,0 +1,8 @@
+{
+  "nota": "Primero el estudio de malla con el caso base del articulo; despues el barrido 3 x 3 en la malla elegida. Las 5 mezclas no multiplican corridas: el azufre sale del modelo publicado.",
+  "estudio_malla": {"factor_caudal_gas": 1.0, "profundidad_lanza_m": 2.0, "mallas": ["gruesa", "media", "fina"]},
+  "malla_barrido": "media",
+  "factor_caudal_gas": [0.5, 1.0, 2.0],
+  "profundidad_lanza_m": [1.5, 2.0, 2.5],
+  "prueba_tiempos": {"malla_media_s_reales_por_s_simulado": 130, "horas_por_caso_60s_media": 2.2, "fecha": "2026-11-02"}
+}

@@ -1,0 +1,74 @@
+{
+  "cadena": {
+    "v_b": 0.7938427525765623,
+    "t_R": 2.5193906394038783,
+    "k": 0.0016844894364803505
+  },
+  "k_polvos": {
+    "CaO": 0.0016844894364803505,
+    "CaC2": 0.004,
+    "Mg": 0.00244
+  },
+  "pruebas": [
+    {
+      "prueba": "v_b (m/s)",
+      "calculado": 0.7938427525765623,
+      "publicado": 0.7938,
+      "ok": true
+    },
+    {
+      "prueba": "t_R (s)",
+      "calculado": 2.5193906394038783,
+      "publicado": 2.52,
+      "ok": true
+    },
+    {
+      "prueba": "k_CaO (1/s)",
+      "calculado": 0.0016844894364803505,
+      "publicado": 0.001684,
+      "ok": true
+    },
+    {
+      "prueba": "S final CaO (%)",
+      "calculado": 0.0017548713307800477,
+      "publicado": 0.00176,
+      "ok": true
+    },
+    {
+      "prueba": "S final Mg (%)",
+      "calculado": 0.0002862671497803517,
+      "publicado": 0.0002863,
+      "ok": true
+    },
+    {
+      "prueba": "k_m mezcla 1 (1/s)",
+      "calculado": 0.002868892357811863,
+      "publicado": 0.002869,
+      "ok": true
+    },
+    {
+      "prueba": "k_m mezcla 2 (1/s)",
+      "calculado": 0.0026637336531944358,
+      "publicado": 0.002664,
+      "ok": true
+    },
+    {
+      "prueba": "k_m mezcla 3 (1/s)",
+      "calculado": 0.002411776653393951,
+      "publicado": 0.002412,
+      "ok": true
+    },
+    {
+      "prueba": "k_m mezcla 4 (1/s)",
+      "calculado": 0.0020949473671341627,
+      "publicado": 0.002095,
+      "ok": true
+    },
+    {
+      "prueba": "k_m mezcla 5 (1/s)",
+      "calculado": 0.0016844894364803505,
+      "publicado": 0.001684,
+      "ok": true
+    }
+  ]
+}

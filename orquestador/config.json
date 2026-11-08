@@ -1,0 +1,17 @@
+{
+  "activos": "~/desulfuracion/activos",
+  "entorno": "/usr/lib/openfoam/openfoam2606/etc/bashrc",
+  "variables": {"HWLOC_COMPONENTS": "-gl,-cuda,-nvml,-opencl,-rsmi,-levelzero"},
+  "preparar": "preparar.sh",
+  "campos_clave": ["alpha.argon", "U.argon", "U.hierro", "p", "p_rgh"],
+  "solver": "twoPhaseEulerFoam",
+  "finalizar": "reconstructPar -newTimes > log.reconstruir 2>&1",
+  "nucleos": 8,
+  "endTime": 60,
+  "maxCo": 0.5,
+  "intervalo_s": 30,
+  "respaldos_a_conservar": 2,
+  "max_intentos": 2,
+  "sin_avance_min": 180,
+  "salir_al_terminar": false
+}

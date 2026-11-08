@@ -1,0 +1,186 @@
+{
+  "casos": [
+    {
+      "id": "c01",
+      "parametros": {
+        "factor_caudal_gas": 1.0,
+        "profundidad_lanza_m": 2.0,
+        "malla": "gruesa"
+      },
+      "estado": "terminado",
+      "ultimo_instante": "60",
+      "inicio": "2026-11-02 20:45:59",
+      "termino": "2026-11-02 20:55:15",
+      "extraccion": "pendiente",
+      "duracion_h": 0.15
+    },
+    {
+      "id": "c02",
+      "parametros": {
+        "factor_caudal_gas": 1.0,
+        "profundidad_lanza_m": 2.0,
+        "malla": "media"
+      },
+      "estado": "terminado",
+      "ultimo_instante": "60.128567",
+      "inicio": "2026-11-02 20:55:38",
+      "intentos": 0,
+      "factor_maxCo": 0.5,
+      "termino": "2026-11-03 15:03:58",
+      "extraccion": "pendiente",
+      "duracion_h": 18.14
+    },
+    {
+      "id": "c03",
+      "parametros": {
+        "factor_caudal_gas": 1.0,
+        "profundidad_lanza_m": 2.0,
+        "malla": "fina"
+      },
+      "estado": "terminado",
+      "ultimo_instante": "60.506293",
+      "inicio": "2026-11-02 23:34:39",
+      "termino": "2026-11-03 14:13:58",
+      "extraccion": "pendiente",
+      "duracion_h": 14.66
+    },
+    {
+      "id": "c04",
+      "parametros": {
+        "factor_caudal_gas": 0.5,
+        "profundidad_lanza_m": 1.5,
+        "malla": "media"
+      },
+      "estado": "terminado",
+      "ultimo_instante": "60",
+      "inicio": "2026-11-03 15:04:12",
+      "termino": "2026-11-03 17:36:59",
+      "extraccion": "pendiente",
+      "duracion_h": 2.55
+    },
+    {
+      "id": "c05",
+      "parametros": {
+        "factor_caudal_gas": 0.5,
+        "profundidad_lanza_m": 2.0,
+        "malla": "media"
+      },
+      "estado": "terminado",
+      "ultimo_instante": "60",
+      "inicio": "2026-11-03 17:37:16",
+      "termino": "2026-11-03 20:22:03",
+      "extraccion": "pendiente",
+      "duracion_h": 2.75
+    },
+    {
+      "id": "c06",
+      "parametros": {
+        "factor_caudal_gas": 0.5,
+        "profundidad_lanza_m": 2.5,
+        "malla": "media"
+      },
+      "estado": "terminado",
+      "ultimo_instante": "60.230123",
+      "inicio": "2026-11-03 20:22:19",
+      "intentos": 0,
+      "instante_ultimo_fallo": 49.230123,
+      "factor_maxCo": 1,
+      "termino": "2026-11-03 22:45:29",
+      "extraccion": "pendiente",
+      "duracion_h": 2.39
+    },
+    {
+      "id": "c07",
+      "parametros": {
+        "factor_caudal_gas": 1.0,
+        "profundidad_lanza_m": 1.5,
+        "malla": "media"
+      },
+      "estado": "terminado",
+      "ultimo_instante": "60.354304",
+      "inicio": "2026-11-03 22:03:40",
+      "termino": "2026-11-04 01:06:10",
+      "extraccion": "pendiente",
+      "duracion_h": 3.04
+    },
+    {
+      "id": "c08",
+      "parametros": {
+        "factor_caudal_gas": 1.0,
+        "profundidad_lanza_m": 2.5,
+        "malla": "media"
+      },
+      "estado": "terminado",
+      "ultimo_instante": "60",
+      "inicio": "2026-11-04 01:06:26",
+      "termino": "2026-11-04 03:21:21",
+      "extraccion": "pendiente",
+      "duracion_h": 2.25
+    },
+    {
+      "id": "c09",
+      "parametros": {
+        "factor_caudal_gas": 2.0,
+        "profundidad_lanza_m": 1.5,
+        "malla": "media"
+      },
+      "estado": "terminado",
+      "ultimo_instante": "60",
+      "inicio": "2026-11-04 03:21:38",
+      "intentos": 1,
+      "instante_ultimo_fallo": 52.0,
+      "factor_maxCo": 0.5,
+      "termino": "2026-11-04 06:03:14",
+      "extraccion": "pendiente",
+      "duracion_h": 2.69
+    },
+    {
+      "id": "c10",
+      "parametros": {
+        "factor_caudal_gas": 2.0,
+        "profundidad_lanza_m": 2.0,
+        "malla": "media"
+      },
+      "estado": "terminado",
+      "ultimo_instante": "60",
+      "inicio": "2026-11-04 06:03:30",
+      "errores_orquestador": 1,
+      "termino": "2026-11-04 07:41:33",
+      "extraccion": "pendiente",
+      "duracion_h": 1.63
+    },
+    {
+      "id": "c11",
+      "parametros": {
+        "factor_caudal_gas": 2.0,
+        "profundidad_lanza_m": 2.5,
+        "malla": "media"
+      },
+      "estado": "terminado",
+      "ultimo_instante": "60",
+      "inicio": "2026-11-04 07:41:48",
+      "termino": "2026-11-04 09:36:20",
+      "extraccion": "pendiente",
+      "duracion_h": 1.91
+    },
+    {
+      "id": "c12",
+      "parametros": {
+        "factor_caudal_gas": 1.0,
+        "profundidad_lanza_m": 2.0,
+        "malla": "fina",
+        "toberas": true
+      },
+      "estado": "terminado",
+      "ultimo_instante": "60",
+      "inicio": "2026-11-05 08:58:28",
+      "intentos": 0,
+      "instante_ultimo_fallo": 0.0,
+      "factor_maxCo": 1,
+      "termino": "2026-11-06 03:48:04",
+      "extraccion": "pendiente",
+      "duracion_h": 18.83
+    }
+  ],
+  "actualizado": "2026-11-06 03:48:04"
+}

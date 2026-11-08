@@ -1,0 +1,110 @@
+[
+  {
+    "caso": "c01",
+    "malla": "gruesa",
+    "caudal_x": 1.0,
+    "lanza_m": 2.0,
+    "v_media_m_s": 0.0328,
+    "v_p95_m_s": 0.1177,
+    "pluma_frac_volumen": 0.0935
+  },
+  {
+    "caso": "c02",
+    "malla": "media",
+    "caudal_x": 1.0,
+    "lanza_m": 2.0,
+    "v_media_m_s": 0.0321,
+    "v_p95_m_s": 0.1092,
+    "pluma_frac_volumen": 0.0439
+  },
+  {
+    "caso": "c03",
+    "malla": "fina",
+    "caudal_x": 1.0,
+    "lanza_m": 2.0,
+    "v_media_m_s": 0.026,
+    "v_p95_m_s": 0.0846,
+    "pluma_frac_volumen": 0.042
+  },
+  {
+    "caso": "c04",
+    "malla": "media",
+    "caudal_x": 0.5,
+    "lanza_m": 1.5,
+    "v_media_m_s": 0.0166,
+    "v_p95_m_s": 0.0541,
+    "pluma_frac_volumen": 0.0426
+  },
+  {
+    "caso": "c05",
+    "malla": "media",
+    "caudal_x": 0.5,
+    "lanza_m": 2.0,
+    "v_media_m_s": 0.0232,
+    "v_p95_m_s": 0.0812,
+    "pluma_frac_volumen": 0.045
+  },
+  {
+    "caso": "c06",
+    "malla": "media",
+    "caudal_x": 0.5,
+    "lanza_m": 2.5,
+    "v_media_m_s": 0.0358,
+    "v_p95_m_s": 0.1877,
+    "pluma_frac_volumen": 0.0474
+  },
+  {
+    "caso": "c07",
+    "malla": "media",
+    "caudal_x": 1.0,
+    "lanza_m": 1.5,
+    "v_media_m_s": 0.0252,
+    "v_p95_m_s": 0.0659,
+    "pluma_frac_volumen": 0.0422
+  },
+  {
+    "caso": "c08",
+    "malla": "media",
+    "caudal_x": 1.0,
+    "lanza_m": 2.5,
+    "v_media_m_s": 0.043,
+    "v_p95_m_s": 0.2133,
+    "pluma_frac_volumen": 0.0473
+  },
+  {
+    "caso": "c09",
+    "malla": "media",
+    "caudal_x": 2.0,
+    "lanza_m": 1.5,
+    "v_media_m_s": 0.0304,
+    "v_p95_m_s": 0.0805,
+    "pluma_frac_volumen": 0.0423
+  },
+  {
+    "caso": "c10",
+    "malla": "media",
+    "caudal_x": 2.0,
+    "lanza_m": 2.0,
+    "v_media_m_s": 0.0373,
+    "v_p95_m_s": 0.1413,
+    "pluma_frac_volumen": 0.0438
+  },
+  {
+    "caso": "c11",
+    "malla": "media",
+    "caudal_x": 2.0,
+    "lanza_m": 2.5,
+    "v_media_m_s": 0.0485,
+    "v_p95_m_s": 0.241,
+    "pluma_frac_volumen": 0.0463
+  },
+  {
+    "caso": "c12",
+    "malla": "fina",
+    "caudal_x": 1.0,
+    "lanza_m": 2.0,
+    "v_media_m_s": 0.0264,
+    "v_p95_m_s": 0.0744,
+    "pluma_frac_volumen": 0.0467
+  }
+]

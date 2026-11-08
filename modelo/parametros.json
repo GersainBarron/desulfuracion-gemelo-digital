@@ -1,0 +1,32 @@
+{
+  "fuente": "Barron, Hilerio y Medina (2015), Open Journal of Applied Sciences 5, 295-303, doi:10.4236/ojapps.2015.56030 (CC BY 4.0)",
+  "tabla1": {
+    "beta_m_s": 6.3e-5,
+    "q_CaO_kg_s": 1.25,
+    "rho_M_kg_m3": 7100.0,
+    "d_p_m": 1.0e-5,
+    "w_M_kg": 150000.0,
+    "rho_CaO_kg_m3": 3345.0,
+    "h_i_m": 2.0,
+    "g_m_s2": 9.81,
+    "rho_g_kg_m3": 1.165,
+    "d_b_m": 0.0011725,
+    "mu_M_kg_ms": 0.0067,
+    "S_e_wt": 0.0
+  },
+  "validacion": {"S0_wt": 0.1, "t_inyeccion_s": 2400.0},
+  "tabla2_k_s": {"CaO": null, "CaC2": 0.004, "Mg": 0.00244},
+  "masas_molares_g_mol": {"CaO": 56.077, "CaC2": 64.099, "Mg": 24.305},
+  "tabla3_mezclas_wt": [
+    {"mezcla": 1, "CaO": 0, "CaC2": 50, "Mg": 50, "km_articulo": 0.002869},
+    {"mezcla": 2, "CaO": 25, "CaC2": 37.5, "Mg": 37.5, "km_articulo": 0.002664},
+    {"mezcla": 3, "CaO": 50, "CaC2": 25, "Mg": 25, "km_articulo": 0.002412},
+    {"mezcla": 4, "CaO": 75, "CaC2": 12.5, "Mg": 12.5, "km_articulo": 0.002095},
+    {"mezcla": 5, "CaO": 100, "CaC2": 0, "Mg": 0, "km_articulo": 0.001684}
+  ],
+  "cfd_articulo": {
+    "toberas": 2, "d_n_m": 0.02, "angulo_grados": 45,
+    "K_entrada": 0.0063, "epsilon_entrada": 0.05,
+    "modelo": "2D transitorio, VOF + k-epsilon, Fluent 6.1"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "raiz": "@AQUI@/raiz",
+  "activos": "~/desulfuracion/prueba_activos",
+  "entorno": "",
+  "preparar": "@AQUI@/preparar_falso.sh",
+  "solver": "python3 '@AQUI@/simulador_falso.py'",
+  "finalizar": "",
+  "nucleos": 1,
+  "endTime": 10,
+  "maxCo": 0.5,
+  "intervalo_s": 1,
+  "respaldos_a_conservar": 2,
+  "max_intentos": 2,
+  "salir_al_terminar": true
+}

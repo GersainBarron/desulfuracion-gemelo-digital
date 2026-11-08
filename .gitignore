@@ -1,0 +1,18 @@
+# resultados pesados que se regeneran localmente
+cfd/casos/
+cfd/respaldos/
+cfd/bitacora/
+blender/datos/
+blender/render/
+extraccion/c*/*.npz
+extraccion/c*/*.png
+extraccion/c*/COMPLETO
+# estado de la cola en una maquina
+ESTADO.txt
+AVISOS.txt
+orquestador/PAUSA
+orquestador/*.pid
+orquestador/pruebas/*.local.json
+orquestador/pruebas/raiz*/
+*.log
+__pycache__/
